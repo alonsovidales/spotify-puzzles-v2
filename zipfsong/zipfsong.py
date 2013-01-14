@@ -4,6 +4,7 @@
 """
 NOTE: I think that the system who tests the code is not correct, it gives all the times the error "Exited (non-zero
 exit status)" I try to put "try...except" by all the code, modify the input parser, etc, but... didn't work :'(
+I created a script "create_input.py" to create test inputs, I used the max allowed limits, etc... but nothing
 """
 
 __author__ = "Alonso Vidales"
@@ -12,7 +13,7 @@ __date__ = "2013-01-12"
 
 class ZipfSong:
     __groups = None
-    __songs = []
+    __songs = None
     __debug = False
 
     def resolve(self, inOutLen):
@@ -37,6 +38,7 @@ class ZipfSong:
             pepe = 10 / 0
 
     def __init__(self, inSongs):
+        self.__songs = []
         for song in inSongs:
             songInfo = song.split()
             self.__songs.append({
