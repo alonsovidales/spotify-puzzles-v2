@@ -26,6 +26,9 @@ class CatVsDog:
         byDogLove = {}
         byDogHate = {}
 
+        # Create the bipartite graph and the byXXXLove and by byXXXHate dictionaries,
+        # that will contain the direct access to the sets of voters that likes a determinate
+        # cat/dog and hates a determiante cat/dog
         for vote in self.__votesList:
             if vote in votes:
                 votes[vote]['votes'] += 1
@@ -67,35 +70,82 @@ class CatVsDog:
                     'partners': set()
                 }
 
+        # If we don't have opposite votters, return the whole list of votters
+        if totalDogLovers == 0 or totalCatLovers == 0:
+            return len(self.__votesList)
+
+        # Create the graph edges from compatible cat lovers to dog lovers
         setOfDogLoversVotes = set([vote[0] for vote in dogLovers])
         for catLover in catLovers:
+            # Remove the uncompatible dog lovers from the set of dogs. The uncompatible voters are the
+            # voters who loves the dog that I hate, and hates the cat that I love
             toRemove = byDogLove.get(catLover[1][1], set()) | byDogHate.get(catLover[1][0], set())
             votes[catLover[0]]['partners'] = setOfDogLoversVotes - toRemove
 
-        setOfCatLoversVotes = set([vote[0] for vote in catLovers])
         maxHappyVoters = 0
+        # Go dog lover by dog lover checking witch cat lovers are compatible, and check with dog
+        # lovers are compatible with the compatible cat loves
+        setOfCatLoversVotes = set([vote[0] for vote in catLovers])
         for dogLover in dogLovers:
             if self.__debug:
                 print "--- Checking: %s ---" % (dogLover[0])
             totalHappyVotes = 0
+
+            # Get the compatible cat lovers, removing the cat lovers who hates the dog that I love,
+            # and the cat lovers who loves the cat that I hate
             toRemove = byCatLove.get(dogLover[1][1], set()) | byCatHate.get(dogLover[1][0], set())
-            #votes[dogLover[0]]['partners'] = setOfCatLoversVotes - toRemove
+            votes[dogLover[0]]['partners'] = setOfCatLoversVotes - toRemove
 
-            dogLoversPartners = setOfDogLoversVotes
-            for partner in setOfCatLoversVotes - toRemove:
+            dogLoversPartners = setOfDogLoversVotes.copy()
+            for partner in votes[dogLover[0]]['partners']:
                 totalHappyVotes += votes[partner]['votes']
-                dogLoversPartners &= votes[partner]['partners']
 
+            # Check if is possible find a soluttion better than the solution yet found, the total amount
+            # of dog lovers + the compatible cat lovers is bigger than a previos found solution
+            if (totalDogLovers + totalHappyVotes) > maxHappyVoters:
+                # Get only the compatible dog lovers with the selected cat lovers
+                for partner in votes[dogLover[0]]['partners']:
+                    dogLoversPartners &= votes[partner]['partners']
+
+                if self.__debug:
+                    print "Parterns: %s" % (setOfCatLoversVotes - toRemove)
+                    print "Self parterns: %s" % (dogLoversPartners)
+
+                for dogLoversPartner in dogLoversPartners:
+                    totalHappyVotes += votes[dogLoversPartner]['votes']
+
+                if maxHappyVoters < totalHappyVotes:
+                    maxHappyVoters = totalHappyVotes
+                #print "Votes for: %s: %s" % (dogLover[0], totalHappyVotes)
+
+        # Check one by one the compatibility from the cat lovers voters side
+        for catLover in catLovers:
             if self.__debug:
-                print "Parterns: %s" % (setOfCatLoversVotes - toRemove)
-                print "Self parterns: %s" % (dogLoversPartners)
+                print "--- Checking: %s ---" % (catLover[0])
+            totalHappyVotes = 0
+            for partner in votes[catLover[0]]['partners']:
+                totalHappyVotes += votes[partner]['votes']
 
-            for dogLoversPartner in dogLoversPartners:
-                totalHappyVotes += votes[dogLoversPartner]['votes']
+            # Check if is possible find a soluttion better than the solution yet found, the total amount
+            # of cat lovers + the compatible cat lovers is bigger than a previos found solution
+            if (totalCatLovers + totalHappyVotes) > maxHappyVoters:
+                # Get only the compatible cat lovers with the selected cat lovers
+                catLoversPartners = setOfCatLoversVotes.copy()
+                for partner in votes[catLover[0]]['partners']:
+                    catLoversPartners &= votes[partner]['partners']
 
-            if maxHappyVoters < totalHappyVotes:
-                maxHappyVoters = totalHappyVotes
-            #print "Votes for: %s: %s" % (dogLover[0], totalHappyVotes)
+                if self.__debug:
+                    print "Parterns: %s" % (votes[catLover[0]]['partners'])
+                    print "Self parterns: %s" % (catLoversPartners)
+
+                for catLoversPartner in catLoversPartners:
+                    totalHappyVotes += votes[catLoversPartner]['votes']
+
+                if maxHappyVoters < totalHappyVotes:
+                    maxHappyVoters = totalHappyVotes
+                #print "Votes for: %s: %s" % (catLover[0], totalHappyVotes)
+
+            
 
         if self.__debug:
             print "%s - %s" % (totalCatLovers, totalDogLovers)
@@ -126,3 +176,4 @@ if __name__ == "__main__":
         results.append(CatVsDog(problemInfo[0], problemInfo[1], votes).resolve())
 
     print "\n".join(map(str, results))
+    #print " ".join(map(str, results))
