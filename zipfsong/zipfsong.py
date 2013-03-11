@@ -21,21 +21,18 @@ class ZipfSong:
         This method sorts all the songs by the Zipf's law, and returns the inOutLen songs names as
         a string concatenated by the new line character
         """
-        try:
-            # Add the quality value to the songs to be sorted by this
-            for songPos in xrange(0, len(self.__songs)):
-                self.__songs[songPos]['q'] = self.__songs[songPos]['times'] * (songPos + 1)
+        # Add the quality value to the songs to be sorted by this
+        for songPos in xrange(0, len(self.__songs)):
+            self.__songs[songPos]['q'] = self.__songs[songPos]['times'] * (songPos + 1)
 
-            if self.__debug:
-                print self.__songs
+        if self.__debug:
+            print self.__songs
 
-            # Short the array of songs by quality in descending order and get the first inOutLen songs
-            resultList = sorted(self.__songs, key = lambda song: song['q'], reverse = True)[:inOutLen]
+        # Short the array of songs by quality in descending order and get the first inOutLen songs
+        resultList = sorted(self.__songs, key = lambda song: song['q'], reverse = True)[:inOutLen]
 
-            # Return the array as a string concatenated with new lines
-            return "\n".join([song['name'] for song in resultList])
-        except:
-            pepe = 10 / 0
+        # Return the array as a string concatenated with new lines
+        return "\n".join([song['name'] for song in resultList])
 
     def __init__(self, inSongs):
         self.__songs = []
