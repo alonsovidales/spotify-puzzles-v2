@@ -16,31 +16,31 @@ class ZipfSong:
     __songs = None
     __debug = False
 
-    def resolve(self, inOutLen):
+    def resolve(self, out_len):
         """
-        This method sorts all the songs by the Zipf's law, and returns the inOutLen songs names as
+        This method sorts all the songs by the Zipf's law, and returns the out_len songs names as
         a string concatenated by the new line character
         """
         # Add the quality value to the songs to be sorted by this
-        for songPos in xrange(0, len(self.__songs)):
-            self.__songs[songPos]['q'] = self.__songs[songPos]['times'] * (songPos + 1)
+        for song_pos in xrange(0, len(self.__songs)):
+            self.__songs[song_pos]['q'] = self.__songs[song_pos]['times'] * (song_pos + 1)
 
         if self.__debug:
             print self.__songs
 
-        # Short the array of songs by quality in descending order and get the first inOutLen songs
-        resultList = sorted(self.__songs, key = lambda song: song['q'], reverse = True)[:inOutLen]
+        # Short the array of songs by quality in descending order and get the first out_len songs
+        result_list = sorted(self.__songs, key = lambda song: song['q'], reverse = True)[:out_len]
 
         # Return the array as a string concatenated with new lines
-        return "\n".join([song['name'] for song in resultList])
+        return "\n".join([song['name'] for song in result_list])
 
-    def __init__(self, inSongs):
+    def __init__(self, songs):
         self.__songs = []
-        for song in inSongs:
-            songInfo = song.split()
+        for song in songs:
+            song_info = song.split()
             self.__songs.append({
-                'times': int(songInfo[0]),
-                'name': songInfo[1]
+                'times': int(song_info[0]),
+                'name': song_info[1]
             })
 
 if __name__ == "__main__":
